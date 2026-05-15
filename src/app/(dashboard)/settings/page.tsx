@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useSession } from 'next-auth/react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
@@ -18,12 +19,17 @@ import {
 import styles from './Settings.module.css';
 
 export default function SettingsPage() {
+  const { data: session } = useSession();
+  const userName = session?.user?.name || 'User';
+  const userEmail = session?.user?.email || '';
+  const userInitial = userName.charAt(0).toUpperCase();
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className="type-h2">System Settings</h1>
         <p className="type-body" style={{ color: 'var(--color-text-3)' }}>
-          Manage your agency workspace, billing, and system configurations.
+          Manage your account, workspace, and system configurations.
         </p>
       </header>
 
@@ -39,20 +45,29 @@ export default function SettingsPage() {
         <div className={styles.panels}>
           <Card className={styles.panelCard}>
             <div className={styles.panelHeader}>
-              <h3 className="type-h3">Workspace Identity</h3>
-              <p className="type-small" style={{ color: 'var(--color-text-3)' }}>Update your agency branding and global settings.</p>
+              <h3 className="type-h3">Account</h3>
+              <p className="type-small" style={{ color: 'var(--color-text-3)' }}>Your personal account information.</p>
             </div>
             
             <div className={styles.fieldGrid}>
-              <Input label="Agency Name" defaultValue="DesignFlow Studio" />
-              <Input label="Workspace Slug" defaultValue="designflow" prefix="aos.app/" />
-              <div className={styles.fieldGroup}>
-                <label className="type-label" style={{ color: 'var(--color-text-3)' }}>Workspace Logo</label>
-                <div className={styles.logoUpload}>
-                  <div className={styles.logoPreview}>D</div>
-                  <Button variant="secondary" size="sm">Change Logo</Button>
-                </div>
-              </div>
+              <Input label="Full Name" defaultValue={userName} />
+              <Input label="Email" defaultValue={userEmail} type="email" />
+            </div>
+            
+            <div className={styles.panelActions}>
+              <Button variant="primary">Save Changes</Button>
+            </div>
+          </Card>
+
+          <Card className={styles.panelCard}>
+            <div className={styles.panelHeader}>
+              <h3 className="type-h3">Workspace</h3>
+              <Badge variant="active">Active</Badge>
+            </div>
+            
+            <div className={styles.fieldGrid}>
+              <Input label="Agency Name" defaultValue="My Agency" />
+              <Input label="Workspace Slug" defaultValue="my-agency" prefix="aos.app/" />
             </div>
             
             <div className={styles.panelActions}>
@@ -68,32 +83,31 @@ export default function SettingsPage() {
             
             <div className={styles.planInfo}>
               <div className={styles.planDetails}>
-                <h4 className={styles.planName}>Enterprise Cinematic</h4>
-                <p className={styles.planPrice}>$499<span className={styles.planPeriod}>/month</span></p>
+                <h4 className={styles.planName}>Pro</h4>
+                <p className={styles.planPrice}>$79<span className={styles.planPeriod}>/month</span></p>
               </div>
               <ul className={styles.planFeatures}>
-                <li><Check size={14} color="var(--color-success)" /> Unlimited AI Workflow Credits</li>
-                <li><Check size={14} color="var(--color-success)" /> Multi-tenant Client Portals</li>
-                <li><Check size={14} color="var(--color-success)" /> White-label Reporting</li>
+                <li><Check size={14} color="var(--color-success)" /> Unlimited Projects</li>
+                <li><Check size={14} color="var(--color-success)" /> 20 Team Members</li>
+                <li><Check size={14} color="var(--color-success)" /> Priority Support</li>
               </ul>
             </div>
             
             <div className={styles.panelActions}>
               <Button variant="secondary">Manage Subscription</Button>
-              <Button variant="ghost">View Billing History</Button>
             </div>
           </Card>
 
           <Card className={styles.panelCard}>
             <div className={styles.panelHeader}>
               <h3 className="type-h3">API Keys</h3>
-              <p className="type-small" style={{ color: 'var(--color-text-3)' }}>Connect AOS to your existing workflow via our API.</p>
+              <p className="type-small" style={{ color: 'var(--color-text-3)' }}>Connect AOS to your workflow.</p>
             </div>
             
             <div className={styles.apiKey}>
               <div className={styles.keyInfo}>
                 <Key size={16} color="var(--color-text-3)" />
-                <code className="type-mono">sk_live_••••••••••••••••••••••••</code>
+                <code className="type-mono">sk_live_••••••••••••••••</code>
               </div>
               <Button variant="ghost" size="sm">Reveal</Button>
             </div>

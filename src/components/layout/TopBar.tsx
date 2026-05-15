@@ -1,22 +1,46 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Bell, User, ChevronDown, Command, Settings, LogOut, CreditCard, HelpCircle } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Search, Bell, User, ChevronDown, Command, Settings, LogOut, CreditCard, HelpCircle, Loader2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import styles from './TopBar.module.css';
 
-const mockNotifications = [
-  { id: 1, title: 'New client onboarded', message: 'Acme Corp has been added to your clients', time: '2m ago', unread: true },
-  { id: 2, title: 'Invoice #1245 paid', message: 'Payment received from TechStart Inc', time: '1h ago', unread: true },
-  { id: 3, title: 'AI Brief completed', message: 'Website redesign brief is ready for review', time: '3h ago', unread: false },
-  { id: 4, title: 'Task assigned', message: 'You were assigned "Homepage Mockup"', time: '5h ago', unread: false },
-];
+interface Notification {
+  id: string;
+  title: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
 
 export const TopBar: React.FC = () => {
+  const { data: session } = useSession();
+  const router = useRouter();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
   const notifRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch('/api/notifications');
+      const data = await res.json();
+      if (data.notifications) {
+        setNotifications(data.notifications);
+        setUnreadCount(data.unreadCount);
+      }
+    } catch (err) {
+      console.error('Failed to fetch notifications:', err);
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -31,12 +55,20 @@ export const TopBar: React.FC = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const userName = session?.user?.name || 'User';
+  const userEmail = session?.user?.email || '';
+  const userInitial = userName.charAt(0).toUpperCase();
+
+  const handleSignOut = async () => {
+    await signOut({ callbackUrl: '/login' });
+  };
+
   return (
     <header className={styles.topBar}>
       <div className={styles.left}>
         <div className={styles.workspaceSwitcher}>
-          <div className={styles.avatar}>D</div>
-          <span className={styles.workspaceName}>DesignFlow Agency</span>
+          <div className={styles.avatar}>{userInitial}</div>
+          <span className={styles.workspaceName}>My Workspace</span>
           <ChevronDown size={14} className={styles.chevron} />
         </div>
       </div>
@@ -59,7 +91,7 @@ export const TopBar: React.FC = () => {
             onClick={() => setShowNotifications(!showNotifications)}
           >
             <Bell size={18} />
-            <span className={styles.notificationDot} />
+            {unreadCount > 0 && <span className={styles.notificationDot} />}
           </button>
           
           <AnimatePresence>
@@ -73,21 +105,23 @@ export const TopBar: React.FC = () => {
               >
                 <div className={styles.dropdownHeader}>
                   <span className={styles.dropdownTitle}>Notifications</span>
-                  <button className={styles.markAllRead}>Mark all read</button>
+                  {unreadCount > 0 && <button className={styles.markAllRead}>Mark all read</button>}
                 </div>
                 <div className={styles.notifList}>
-                  {mockNotifications.map((notif) => (
-                    <div key={notif.id} className={`${styles.notifItem} ${notif.unread ? styles.unread : ''}`}>
+                  {notifications.length === 0 && (
+                    <div className={styles.notifItem}>
+                      <div className={styles.notifMessage}>No notifications yet</div>
+                    </div>
+                  )}
+                  {notifications.slice(0, 5).map((notif) => (
+                    <div key={notif.id} className={`${styles.notifItem} ${!notif.read ? styles.unread : ''}`}>
                       <div className={styles.notifContent}>
                         <div className={styles.notifTitle}>{notif.title}</div>
                         <div className={styles.notifMessage}>{notif.message}</div>
                       </div>
-                      <div className={styles.notifTime}>{notif.time}</div>
+                      <div className={styles.notifTime}>{new Date(notif.createdAt).toLocaleDateString()}</div>
                     </div>
                   ))}
-                </div>
-                <div className={styles.dropdownFooter}>
-                  View all notifications
                 </div>
               </motion.div>
             )}
@@ -102,9 +136,9 @@ export const TopBar: React.FC = () => {
             onClick={() => setShowProfile(!showProfile)}
           >
             <div className={styles.userAvatar}>
-              <User size={16} />
+              {userInitial || <User size={16} />}
             </div>
-            <span className={styles.userName}>Alex Rivers</span>
+            <span className={styles.userName}>{userName}</span>
             <ChevronDown size={14} className={styles.chevron} />
           </div>
 
@@ -119,19 +153,19 @@ export const TopBar: React.FC = () => {
               >
                 <div className={styles.profileHeader}>
                   <div className={styles.profileAvatar}>
-                    <User size={24} />
+                    {userInitial || <User size={24} />}
                   </div>
                   <div className={styles.profileInfo}>
-                    <div className={styles.profileName}>Alex Rivers</div>
-                    <div className={styles.profileEmail}>alex@designflow.io</div>
+                    <div className={styles.profileName}>{userName}</div>
+                    <div className={styles.profileEmail}>{userEmail}</div>
                   </div>
                 </div>
                 <div className={styles.menuList}>
-                  <button className={styles.menuItem}>
+                  <button className={styles.menuItem} onClick={() => router.push('/settings')}>
                     <Settings size={16} />
                     <span>Settings</span>
                   </button>
-                  <button className={styles.menuItem}>
+                  <button className={styles.menuItem} onClick={() => router.push('/billing')}>
                     <CreditCard size={16} />
                     <span>Billing</span>
                   </button>
@@ -141,7 +175,7 @@ export const TopBar: React.FC = () => {
                   </button>
                 </div>
                 <div className={styles.menuDivider} />
-                <button className={`${styles.menuItem} ${styles.logout}`}>
+                <button className={`${styles.menuItem} ${styles.logout}`} onClick={handleSignOut}>
                   <LogOut size={16} />
                   <span>Sign out</span>
                 </button>
