@@ -1,15 +1,47 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
-import { Sparkles, Mail, Lock } from 'lucide-react';
+import { Sparkles, Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import styles from './Auth.module.css';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    setLoading(true);
+
+    try {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email,
+        password,
+      });
+
+      if (result?.error) {
+        setError('Invalid email or password');
+      } else {
+        router.push('/dashboard');
+      }
+    } catch (err) {
+      setError('Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.95 }}
@@ -26,18 +58,31 @@ export default function LoginPage() {
           </p>
         </div>
 
-        <form className={styles.form} onSubmit={(e) => e.preventDefault()}>
+        <form className={styles.form} onSubmit={handleSubmit}>
+          {error && (
+            <div className={styles.error}>
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          )}
+          
           <Input 
             label="Email Address" 
             placeholder="name@agency.com" 
             type="email" 
             icon={<Mail size={16} />}
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
           />
           <Input 
             label="Password" 
             placeholder="••••••••" 
             type="password" 
             icon={<Lock size={16} />}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
           
           <div className={styles.actions}>
@@ -46,18 +91,27 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <Link href="/dashboard" style={{ width: '100%' }}>
-            <Button variant="primary" style={{ width: '100%' }}>
-              Sign In to AOS
-            </Button>
-          </Link>
+          <Button 
+            variant="primary" 
+            style={{ width: '100%' }}
+            disabled={loading}
+            type="submit"
+          >
+            {loading ? <Loader2 size={18} className={styles.spin} /> : 'Sign In to AOS'}
+          </Button>
 
           <div className={styles.divider}>
             <span>OR</span>
           </div>
 
-          <Button variant="ai" style={{ width: '100%' }} leftIcon={<Sparkles size={16} />}>
-            Sign in with SSO
+          <Button 
+            variant="ai" 
+            style={{ width: '100%' }} 
+            leftIcon={<Sparkles size={16} />}
+            type="button"
+            onClick={() => router.push('/register')}
+          >
+            Create New Account
           </Button>
         </form>
 
