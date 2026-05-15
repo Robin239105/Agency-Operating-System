@@ -15,31 +15,44 @@ import {
   ChevronRight,
   Timer,
   BarChart3,
-  TrendingUp
+  Loader2
 } from 'lucide-react';
 import styles from './Time.module.css';
 
 interface TimeEntry {
   id: string;
-  project: string;
-  task: string;
-  duration: string;
-  date: string;
+  description?: string;
+  duration: number;
+  startTime: string;
+  endTime?: string;
   billable: boolean;
+  project?: { name: string };
 }
 
-const mockEntries: TimeEntry[] = [
-  { id: '1', project: 'Nexus Brand', task: 'Logo design iteration', duration: '2h 45m', date: 'Today', billable: true },
-  { id: '2', project: 'Vortex Website', task: 'Homepage wireframe', duration: '1h 30m', date: 'Today', billable: true },
-  { id: '3', project: 'Internal', task: 'Team meeting', duration: '45m', date: 'Today', billable: false },
-  { id: '4', project: 'Acme Marketing', task: 'Email campaign setup', duration: '3h 15m', date: 'Yesterday', billable: true },
-  { id: '5', project: 'Starlight App', task: 'UI review session', duration: '2h', date: 'Yesterday', billable: true },
-];
-
 export default function TimePage() {
+  const [entries, setEntries] = useState<TimeEntry[]>([]);
+  const [loading, setLoading] = useState(true);
   const [isTimerRunning, setIsTimerRunning] = useState(false);
   const [timerSeconds, setTimerSeconds] = useState(0);
-  const [selectedProject, setSelectedProject] = useState('Nexus Brand');
+  const [selectedProject, setSelectedProject] = useState('General');
+
+  useEffect(() => {
+    fetchEntries();
+  }, []);
+
+  const fetchEntries = async () => {
+    try {
+      const res = await fetch('/api/time-entries');
+      const data = await res.json();
+      if (data.timeEntries) {
+        setEntries(data.timeEntries);
+      }
+    } catch (err) {
+      console.error('Failed to fetch entries:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -58,14 +71,28 @@ export default function TimePage() {
     return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  const formatHours = (str: string) => {
-    const match = str.match(/(\d+)h\s*(\d+)?m?/);
-    if (match) {
-      const hours = parseInt(match[1] || '0') + (parseInt(match[2] || '0') / 60);
-      return hours.toFixed(1);
-    }
-    return '0';
+  const formatDuration = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    return hrs > 0 ? `${hrs}h ${mins}m` : `${mins}m`;
   };
+
+  const totalToday = entries
+    .filter(e => new Date(e.startTime).toDateString() === new Date().toDateString())
+    .reduce((acc, e) => acc + (e.duration || 0), 0);
+
+  const totalWeek = entries.reduce((acc, e) => acc + (e.duration || 0), 0);
+  const billablePercent = entries.length > 0 ? Math.round((entries.filter(e => e.billable).length / entries.length) * 100) : 0;
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -92,10 +119,9 @@ export default function TimePage() {
                 value={selectedProject}
                 onChange={(e) => setSelectedProject(e.target.value)}
               >
-                <option>Nexus Brand</option>
-                <option>Vortex Website</option>
-                <option>Starlight App</option>
-                <option>Acme Marketing</option>
+                <option>General</option>
+                <option>Design Work</option>
+                <option>Development</option>
               </select>
             </div>
             <div className={styles.timerDisplay}>
@@ -145,10 +171,10 @@ export default function TimePage() {
       </motion.div>
 
       <div className={styles.metricsRow}>
-        <MetricCard label="Today" value="4.2" suffix="h" trend={12} />
-        <MetricCard label="This Week" value="32.5" suffix="h" trend={8} />
-        <MetricCard label="Billable %" value="87" suffix="%" />
-        <MetricCard label="Revenue" value="2.4" prefix="$" suffix="k" trend={15} />
+        <MetricCard label="Today" value={(totalToday / 3600).toFixed(1)} suffix="h" />
+        <MetricCard label="This Week" value={(totalWeek / 3600).toFixed(1)} suffix="h" />
+        <MetricCard label="Billable %" value={billablePercent.toString()} suffix="%" />
+        <MetricCard label="Entries" value={entries.length.toString()} />
       </div>
 
       <div className={styles.entriesSection}>
@@ -158,7 +184,7 @@ export default function TimePage() {
         </div>
 
         <div className={styles.entriesList}>
-          {mockEntries.map((entry, idx) => (
+          {entries.slice(0, 5).map((entry, idx) => (
             <motion.div
               key={entry.id}
               initial={{ opacity: 0, x: -10 }}
@@ -167,65 +193,18 @@ export default function TimePage() {
             >
               <Card className={styles.entryCard} hoverable>
                 <div className={styles.entryMain}>
-                  <div className={styles.entryProject}>{entry.project}</div>
-                  <div className={styles.entryTask}>{entry.task}</div>
+                  <div className={styles.entryProject}>{entry.project?.name || 'General'}</div>
+                  <div className={styles.entryTask}>{entry.description || 'No description'}</div>
                 </div>
                 <div className={styles.entryMeta}>
-                  <span className={styles.entryDuration}>{entry.duration}</span>
-                  <span className={styles.entryDate}>{entry.date}</span>
+                  <span className={styles.entryDuration}>{formatDuration(entry.duration)}</span>
+                  <span className={styles.entryDate}>{new Date(entry.startTime).toLocaleDateString()}</span>
                   {entry.billable && <Badge variant="success">Billable</Badge>}
                 </div>
               </Card>
             </motion.div>
           ))}
         </div>
-      </div>
-
-      <div className={styles.bottomGrid}>
-        <Card className={styles.weeklyCard}>
-          <div className={styles.chartHeader}>
-            <h3 className="type-label">Weekly Overview</h3>
-          </div>
-          <div className={styles.barChart}>
-            {[
-              { day: 'Mon', hours: 6.5 },
-              { day: 'Tue', hours: 8 },
-              { day: 'Wed', hours: 7.25 },
-              { day: 'Thu', hours: 5.5 },
-              { day: 'Fri', hours: 4.75 },
-              { day: 'Sat', hours: 2 },
-              { day: 'Sun', hours: 0 },
-            ].map((item, i) => (
-              <div key={item.day} className={styles.barWrapper}>
-                <div className={styles.bar} style={{ height: `${(item.hours / 10) * 100}%` }} />
-                <span className={styles.barLabel}>{item.day}</span>
-                <span className={styles.barValue}>{item.hours}h</span>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className={styles.projectsCard}>
-          <div className={styles.chartHeader}>
-            <h3 className="type-label">Time by Project</h3>
-          </div>
-          <div className={styles.projectList}>
-            {[
-              { name: 'Nexus Brand', hours: 12.5, color: 'var(--color-accent)' },
-              { name: 'Vortex Website', hours: 9, color: 'var(--color-ai)' },
-              { name: 'Starlight App', hours: 6, color: 'var(--color-warning)' },
-              { name: 'Acme Marketing', hours: 5, color: 'var(--color-text-3)' },
-            ].map((project, i) => (
-              <div key={project.name} className={styles.projectRow}>
-                <div className={styles.projectInfo}>
-                  <span className={styles.projectDot} style={{ background: project.color }} />
-                  <span className={styles.projectName}>{project.name}</span>
-                </div>
-                <span className={styles.projectHours}>{project.hours}h</span>
-              </div>
-            ))}
-          </div>
-        </Card>
       </div>
     </div>
   );

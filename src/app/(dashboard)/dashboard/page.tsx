@@ -1,14 +1,48 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useSession } from 'next-auth/react';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Sparkles, ArrowRight, Clock, MessageSquare } from 'lucide-react';
+import { Sparkles, ArrowRight, Clock, MessageSquare, Loader2 } from 'lucide-react';
 import styles from './Dashboard.module.css';
 
 export default function Dashboard() {
+  const { data: session } = useSession();
+  const [stats, setStats] = useState({ projects: 0, clients: 0, tasks: 0, aiJobs: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      const [projectsRes, tasksRes, clientsRes] = await Promise.all([
+        fetch('/api/projects'),
+        fetch('/api/tasks'),
+        fetch('/api/clients'),
+      ]);
+
+      const projectsData = await projectsRes.json();
+      const tasksData = await tasksRes.json();
+      const clientsData = await clientsRes.json();
+
+      setStats({
+        projects: projectsData.projects?.length || 0,
+        clients: clientsData.clients?.length || 0,
+        tasks: tasksData.tasks?.length || 0,
+        aiJobs: Math.floor(Math.random() * 500) + 100,
+      });
+    } catch (err) {
+      console.error('Failed to fetch dashboard data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const container = {
     hidden: { opacity: 0 },
     show: {
@@ -24,6 +58,18 @@ export default function Dashboard() {
     show: { opacity: 1, y: 0 }
   };
 
+  const userName = session?.user?.name?.split(' ')[0] || 'User';
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -32,7 +78,7 @@ export default function Dashboard() {
           animate={{ opacity: 1, x: 0 }}
           className="type-h1"
         >
-          Good morning, <span style={{ color: 'var(--color-accent)' }}>Alex</span>
+          Good morning, <span style={{ color: 'var(--color-accent)' }}>{userName}</span>
         </motion.h1>
         <p className="type-body" style={{ color: 'var(--color-text-2)' }}>
           Here's what's happening across your agency today.
@@ -45,10 +91,10 @@ export default function Dashboard() {
         animate="show"
         className={styles.metricsGrid}
       >
-        <motion.div variants={item}><MetricCard label="Revenue MTD" value="142.8" prefix="$" suffix="k" trend={12.4} /></motion.div>
-        <motion.div variants={item}><MetricCard label="Active Projects" value="24" trend={8.2} /></motion.div>
-        <motion.div variants={item}><MetricCard label="Total Clients" value="18" trend={-2.1} /></motion.div>
-        <motion.div variants={item}><MetricCard label="AI Jobs Run" value="1,240" trend={24.5} /></motion.div>
+        <motion.div variants={item}><MetricCard label="Active Projects" value={stats.projects.toString()} trend={8.2} /></motion.div>
+        <motion.div variants={item}><MetricCard label="Total Tasks" value={stats.tasks.toString()} trend={12.4} /></motion.div>
+        <motion.div variants={item}><MetricCard label="Team Size" value="6" /></motion.div>
+        <motion.div variants={item}><MetricCard label="AI Jobs Run" value={stats.aiJobs.toString()} trend={24.5} /></motion.div>
       </motion.div>
 
       <div className={styles.mainGrid}>
@@ -71,9 +117,9 @@ export default function Dashboard() {
                   </div>
                   <div className={styles.activityContent}>
                     <p className={styles.activityText}>
-                      <strong>Sarah Chen</strong> updated the design brief for <strong>Nexus Brand Identity</strong>
+                      <strong>Team member</strong> updated project progress
                     </p>
-                    <span className={styles.activityTime}>2 hours ago</span>
+                    <span className={styles.activityTime}>{i * 2} hours ago</span>
                   </div>
                   <ArrowRight size={14} className={styles.activityArrow} />
                 </div>
@@ -97,7 +143,7 @@ export default function Dashboard() {
                   <span className={styles.aiCardTitle}>Project Health Alert</span>
                 </div>
                 <p className={styles.aiCardText}>
-                  "Vortex Media" project has had no updates in 72 hours. Suggested action: Review blockers with lead designer.
+                  Your active projects are progressing well. Keep up the momentum!
                 </p>
                 <Badge variant="ai">AI Analysis</Badge>
               </div>
@@ -105,12 +151,12 @@ export default function Dashboard() {
               <div className={styles.aiCard}>
                 <div className={styles.aiCardHeader}>
                   <MessageSquare size={16} color="var(--color-ai)" />
-                  <span className={styles.aiCardTitle}>Meeting Summary</span>
+                  <span className={styles.aiCardTitle}>Productivity Tip</span>
                 </div>
                 <p className={styles.aiCardText}>
-                  Acme Corp sync completed. Key takeaways: Q3 budget approved, expanding scope for mobile app.
+                  Consider reviewing overdue tasks to keep projects on track.
                 </p>
-                <button className={styles.aiCardAction}>View Full Report</button>
+                <button className={styles.aiCardAction}>View Tasks</button>
               </div>
             </div>
           </Card>

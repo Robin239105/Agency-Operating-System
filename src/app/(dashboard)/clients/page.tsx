@@ -1,12 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { DataTable } from '@/components/ui/DataTable';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { Search, Plus, Filter, MoreVertical, ExternalLink } from 'lucide-react';
+import { Search, Plus, Filter, MoreVertical, ExternalLink, Loader2 } from 'lucide-react';
 import styles from './Clients.module.css';
 
 interface Client {
@@ -18,16 +18,32 @@ interface Client {
   projects: number;
 }
 
-const mockClients: Client[] = [
-  { id: 'CL-001', name: 'Nexus Digital', status: 'active', lastContact: '2024-05-12', mrr: '$4,500', projects: 3 },
-  { id: 'CL-002', name: 'Vortex Media', status: 'progress', lastContact: '2024-05-14', mrr: '$12,000', projects: 5 },
-  { id: 'CL-003', name: 'Acme Corp', status: 'review', lastContact: '2024-05-10', mrr: '$2,800', projects: 1 },
-  { id: 'CL-004', name: 'Starlight SaaS', status: 'active', lastContact: '2024-05-13', mrr: '$8,200', projects: 2 },
-  { id: 'CL-005', name: 'Quantum Leap', status: 'blocked', lastContact: '2024-05-08', mrr: '$15,000', projects: 4 },
-];
-
 export default function ClientsPage() {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchClients();
+  }, []);
+
+  const fetchClients = async () => {
+    try {
+      const res = await fetch('/api/clients');
+      const data = await res.json();
+      if (data.clients) {
+        setClients(data.clients);
+      }
+    } catch (err) {
+      console.error('Failed to fetch clients:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredClients = clients.filter(client => 
+    client.name.toLowerCase().includes(search.toLowerCase())
+  );
 
   const columns: any[] = [
     { 
@@ -41,7 +57,7 @@ export default function ClientsPage() {
     },
     { 
       header: 'Status', 
-      accessor: (row: Client) => <Badge variant={row.status}>{row.status.replace(/_/g, ' ')}</Badge> 
+      accessor: (row: Client) => <Badge variant={row.status === 'active' ? 'success' : row.status === 'progress' ? 'warning' : row.status === 'review' ? 'neutral' : 'danger'}>{row.status}</Badge> 
     },
     { header: 'Last Contact', accessor: 'lastContact', isMono: true },
     { header: 'Projects', accessor: 'projects', isMono: true },
@@ -60,6 +76,16 @@ export default function ClientsPage() {
       )
     }
   ];
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -94,7 +120,7 @@ export default function ClientsPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
-        <DataTable columns={columns} data={mockClients} />
+        <DataTable columns={columns} data={filteredClients} />
       </motion.div>
     </div>
   );

@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion, Reorder } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
@@ -13,16 +13,17 @@ import {
   Calendar, 
   MessageSquare, 
   MoreHorizontal,
-  ChevronDown
+  ChevronDown,
+  Loader2
 } from 'lucide-react';
 import styles from './Projects.module.css';
 
 interface Task {
   id: string;
   title: string;
-  assignee: string;
-  dueDate: string;
-  priority: 'high' | 'medium' | 'low';
+  assignee?: { name: string };
+  dueDate?: string;
+  priority: string;
   comments: number;
 }
 
@@ -32,51 +33,56 @@ interface Column {
   tasks: Task[];
 }
 
-const initialData: Column[] = [
-  {
-    id: 'backlog',
-    title: 'Backlog',
-    tasks: [
-      { id: 'T-101', title: 'Research competitor brand systems', assignee: 'Alex', dueDate: 'May 20', priority: 'medium', comments: 3 },
-      { id: 'T-102', title: 'Define core typography scale', assignee: 'Sarah', dueDate: 'May 18', priority: 'high', comments: 1 }
-    ]
-  },
-  {
-    id: 'in-progress',
-    title: 'In Progress',
-    tasks: [
-      { id: 'T-103', title: 'Develop color palette tokens', assignee: 'Alex', dueDate: 'May 16', priority: 'high', comments: 5 },
-      { id: 'T-104', title: 'Wireframe dashboard layout', assignee: 'Chen', dueDate: 'May 17', priority: 'medium', comments: 2 }
-    ]
-  },
-  {
-    id: 'review',
-    title: 'Review',
-    tasks: [
-      { id: 'T-105', title: 'Hero section animation polish', assignee: 'Chen', dueDate: 'May 14', priority: 'low', comments: 8 }
-    ]
-  },
-  {
-    id: 'done',
-    title: 'Done',
-    tasks: [
-      { id: 'T-106', title: 'Initial discovery call', assignee: 'Alex', dueDate: 'May 10', priority: 'medium', comments: 4 }
-    ]
-  }
-];
-
 export default function ProjectsPage() {
-  const [columns] = useState(initialData);
+  const [columns, setColumns] = useState<Column[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+
+  const fetchProjects = async () => {
+    try {
+      const res = await fetch('/api/projects');
+      const data = await res.json();
+      if (data.projects) {
+        // Transform projects to kanban columns
+        const todo = data.projects.filter((p: any) => p.status === 'ACTIVE').slice(0, 3);
+        const inProgress = data.projects.filter((p: any) => p.status === 'ON_HOLD').slice(0, 2);
+        const done = data.projects.filter((p: any) => p.status === 'COMPLETED').slice(0, 2);
+        
+        setColumns([
+          { id: 'active', title: 'Active', tasks: todo.map((p: any) => ({ id: p.id, title: p.name, priority: 'medium', comments: p._count?.tasks || 0 })) },
+          { id: 'on-hold', title: 'On Hold', tasks: inProgress.map((p: any) => ({ id: p.id, title: p.name, priority: 'high', comments: p._count?.tasks || 0 })) },
+          { id: 'completed', title: 'Completed', tasks: done.map((p: any) => ({ id: p.id, title: p.name, priority: 'low', comments: p._count?.tasks || 0 })) },
+        ]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch projects:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.projectSelector}>
-          <div className={styles.projectIcon}>N</div>
+          <div className={styles.projectIcon}>P</div>
           <div className={styles.projectName}>
             <span className={styles.projectLabel}>Project</span>
             <div className={styles.projectTitle}>
-              Nexus Brand Identity <ChevronDown size={14} />
+              All Projects <ChevronDown size={14} />
             </div>
           </div>
         </div>
@@ -90,7 +96,7 @@ export default function ProjectsPage() {
           <Button variant="secondary" leftIcon={<Sparkles size={16} color="var(--color-ai)" />}>
             Analyze Health
           </Button>
-          <Button variant="primary" leftIcon={<Plus size={16} />}>Task</Button>
+          <Button variant="primary" leftIcon={<Plus size={16} />}>Project</Button>
         </div>
       </header>
 
@@ -114,14 +120,14 @@ export default function ProjectsPage() {
                 >
                   <Card hoverable className={styles.taskCard}>
                     <div className={styles.taskHeader}>
-                      <span className={styles.taskId}>{task.id}</span>
-                      <div className={clsx(styles.priority, styles[task.priority])} />
+                      <span className={styles.taskId}>{task.id.slice(0, 8)}</span>
+                      <div className={`${styles.priority} ${styles[task.priority]}`} />
                     </div>
                     <h4 className={styles.taskTitle}>{task.title}</h4>
                     <div className={styles.taskFooter}>
                       <div className={styles.assignee}>
-                        <div className={styles.avatarSmall}>{task.assignee.charAt(0)}</div>
-                        <span className={styles.dueDate}><Calendar size={12} /> {task.dueDate}</span>
+                        <div className={styles.avatarSmall}>P</div>
+                        <span className={styles.dueDate}><Calendar size={12} /> Due soon</span>
                       </div>
                       <div className={styles.meta}>
                         <span className={styles.metaItem}><MessageSquare size={12} /> {task.comments}</span>

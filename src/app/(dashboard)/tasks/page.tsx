@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
@@ -13,84 +13,78 @@ import {
   Calendar, 
   MessageSquare, 
   MoreHorizontal,
-  Flag,
   Paperclip,
-  Clock
+  Loader2
 } from 'lucide-react';
 import styles from './Tasks.module.css';
 
 interface Task {
   id: string;
   title: string;
-  assignee: { name: string; avatar: string };
-  project: string;
-  dueDate: string;
-  priority: 'urgent' | 'high' | 'medium' | 'low';
-  comments: number;
-  attachments: number;
+  description?: string;
+  status: 'TODO' | 'IN_PROGRESS' | 'REVIEW' | 'DONE';
+  priority: 'LOW' | 'MEDIUM' | 'HIGH' | 'URGENT';
+  dueDate?: string;
+  project?: { name: string };
+  assignedTo?: { name: string };
+  _count?: { comments: number };
 }
-
-interface Column {
-  id: string;
-  title: string;
-  color: string;
-  tasks: Task[];
-}
-
-const initialData: Column[] = [
-  {
-    id: 'urgent',
-    title: 'Urgent',
-    color: 'var(--color-danger)',
-    tasks: [
-      { id: 'T-001', title: 'Fix critical bug in client portal login', assignee: { name: 'Alex', avatar: 'A' }, project: 'Nexus Portal', dueDate: 'Today', priority: 'urgent', comments: 12, attachments: 3 },
-      { id: 'T-002', title: 'Client emergency: logo revision request', assignee: { name: 'Sarah', avatar: 'S' }, project: 'Vortex Rebrand', dueDate: 'Today', priority: 'urgent', comments: 5, attachments: 1 },
-    ]
-  },
-  {
-    id: 'todo',
-    title: 'To Do',
-    color: 'var(--color-text-2)',
-    tasks: [
-      { id: 'T-003', title: 'Design system documentation update', assignee: { name: 'Chen', avatar: 'C' }, project: 'Design System', dueDate: 'May 18', priority: 'high', comments: 2, attachments: 0 },
-      { id: 'T-004', title: 'Create homepage wireframes', assignee: { name: 'Alex', avatar: 'A' }, project: 'Starlight Web', dueDate: 'May 20', priority: 'medium', comments: 8, attachments: 4 },
-      { id: 'T-005', title: 'Review API documentation', assignee: { name: 'Jordan', avatar: 'J' }, project: 'Internal Tools', dueDate: 'May 21', priority: 'low', comments: 0, attachments: 2 },
-    ]
-  },
-  {
-    id: 'in-progress',
-    title: 'In Progress',
-    color: 'var(--color-accent)',
-    tasks: [
-      { id: 'T-006', title: 'Implement new dashboard charts', assignee: { name: 'Chen', avatar: 'C' }, project: 'Analytics Dashboard', dueDate: 'May 17', priority: 'high', comments: 6, attachments: 1 },
-      { id: 'T-007', title: 'Mobile responsive fixes', assignee: { name: 'Alex', avatar: 'A' }, project: 'Nexus Portal', dueDate: 'May 18', priority: 'medium', comments: 4, attachments: 0 },
-    ]
-  },
-  {
-    id: 'done',
-    title: 'Done',
-    color: 'var(--color-success)',
-    tasks: [
-      { id: 'T-008', title: 'User authentication flow', assignee: { name: 'Jordan', avatar: 'J' }, project: 'Nexus Portal', dueDate: 'May 14', priority: 'high', comments: 15, attachments: 3 },
-      { id: 'T-009', title: 'Email template design', assignee: { name: 'Sarah', avatar: 'S' }, project: 'Acme Marketing', dueDate: 'May 13', priority: 'medium', comments: 3, attachments: 5 },
-      { id: 'T-010', title: 'Database optimization', assignee: { name: 'Chen', avatar: 'C' }, project: 'Internal Tools', dueDate: 'May 12', priority: 'low', comments: 7, attachments: 0 },
-    ]
-  }
-];
 
 export default function TasksPage() {
-  const [columns] = useState(initialData);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const res = await fetch('/api/tasks');
+      const data = await res.json();
+      if (data.tasks) {
+        setTasks(data.tasks);
+      }
+    } catch (err) {
+      console.error('Failed to fetch tasks:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColumn = (status: string) => tasks.filter(t => t.status === status);
+  
   const getPriorityBadge = (priority: string) => {
     const variants: Record<string, 'danger' | 'warning' | 'success' | 'neutral'> = {
-      urgent: 'danger',
-      high: 'warning',
-      medium: 'neutral',
-      low: 'success'
+      URGENT: 'danger',
+      HIGH: 'warning',
+      MEDIUM: 'neutral',
+      LOW: 'success'
     };
-    return <Badge variant={variants[priority]}>{priority}</Badge>;
+    return <Badge variant={variants[priority] || 'neutral'}>{priority.toLowerCase()}</Badge>;
   };
+
+  const columns = [
+    { id: 'TODO', title: 'To Do', color: 'var(--color-text-2)', tasks: getStatusColumn('TODO') },
+    { id: 'IN_PROGRESS', title: 'In Progress', color: 'var(--color-accent)', tasks: getStatusColumn('IN_PROGRESS') },
+    { id: 'REVIEW', title: 'Review', color: 'var(--color-warning)', tasks: getStatusColumn('REVIEW') },
+    { id: 'DONE', title: 'Done', color: 'var(--color-success)', tasks: getStatusColumn('DONE') },
+  ];
+
+  const filteredTasks = tasks.filter(task => 
+    task.title.toLowerCase().includes(search.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -119,9 +113,9 @@ export default function TasksPage() {
           />
         </div>
         <div className={styles.stats}>
-          <div className={styles.stat}><span className={styles.statNum}>12</span><span className={styles.statLabel}>Today</span></div>
-          <div className={styles.stat}><span className={styles.statNum}>8</span><span className={styles.statLabel}>Overdue</span></div>
-          <div className={styles.stat}><span className={styles.statNum}>23</span><span className={styles.statLabel}>This Week</span></div>
+          <div className={styles.stat}><span className={styles.statNum}>{tasks.filter(t => t.status === 'TODO').length}</span><span className={styles.statLabel}>To Do</span></div>
+          <div className={styles.stat}><span className={styles.statNum}>{tasks.filter(t => t.status === 'IN_PROGRESS').length}</span><span className={styles.statLabel}>In Progress</span></div>
+          <div className={styles.stat}><span className={styles.statNum}>{tasks.length}</span><span className={styles.statLabel}>Total</span></div>
         </div>
       </div>
 
@@ -138,7 +132,7 @@ export default function TasksPage() {
             </div>
 
             <div className={styles.taskList}>
-              {column.tasks.map((task, idx) => (
+              {filteredTasks.filter(t => t.status === column.id).map((task, idx) => (
                 <motion.div
                   key={task.id}
                   initial={{ opacity: 0, y: 10 }}
@@ -148,19 +142,18 @@ export default function TasksPage() {
                 >
                   <Card hoverable className={styles.taskCard}>
                     <div className={styles.taskHeader}>
-                      <span className={styles.taskId}>{task.id}</span>
+                      <span className={styles.taskId}>{task.id.slice(0, 8)}</span>
                       {getPriorityBadge(task.priority)}
                     </div>
                     <h4 className={styles.taskTitle}>{task.title}</h4>
-                    <div className={styles.projectTag}>{task.project}</div>
+                    {task.project && <div className={styles.projectTag}>{task.project.name}</div>}
                     <div className={styles.taskFooter}>
                       <div className={styles.assignee}>
-                        <div className={styles.avatarSmall}>{task.assignee.avatar}</div>
-                        <span className={styles.dueDate}><Calendar size={12} /> {task.dueDate}</span>
+                        {task.assignedTo && <div className={styles.avatarSmall}>{task.assignedTo.name?.charAt(0) || 'U'}</div>}
+                        {task.dueDate && <span className={styles.dueDate}><Calendar size={12} /> {new Date(task.dueDate).toLocaleDateString()}</span>}
                       </div>
                       <div className={styles.meta}>
-                        {task.comments > 0 && <span className={styles.metaItem}><MessageSquare size={12} /> {task.comments}</span>}
-                        {task.attachments > 0 && <span className={styles.metaItem}><Paperclip size={12} /> {task.attachments}</span>}
+                        {task._count?.comments ? <span className={styles.metaItem}><MessageSquare size={12} /> {task._count.comments}</span> : null}
                       </div>
                     </div>
                   </Card>
