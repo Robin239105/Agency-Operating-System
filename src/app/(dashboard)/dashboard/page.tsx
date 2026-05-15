@@ -6,38 +6,52 @@ import { useSession } from 'next-auth/react';
 import { MetricCard } from '@/components/ui/MetricCard';
 import { Card } from '@/components/ui/Card';
 import { Badge } from '@/components/ui/Badge';
-import { Sparkles, ArrowRight, Clock, MessageSquare, Loader2 } from 'lucide-react';
+import { Sparkles, Clock, MessageSquare, Loader2 } from 'lucide-react';
 import styles from './Dashboard.module.css';
+
+interface DashboardData {
+  projects: number;
+  clients: number;
+  tasks: number;
+  teamMembers: number;
+  recentEntries: number;
+}
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  const [stats, setStats] = useState({ projects: 0, clients: 0, tasks: 0, aiJobs: 0 });
+  const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchDashboardData();
+    fetchData();
   }, []);
 
-  const fetchDashboardData = async () => {
+  const fetchData = async () => {
     try {
-      const [projectsRes, tasksRes, clientsRes] = await Promise.all([
+      const [projectsRes, tasksRes, clientsRes, teamRes, timeRes] = await Promise.all([
         fetch('/api/projects'),
         fetch('/api/tasks'),
         fetch('/api/clients'),
+        fetch('/api/team'),
+        fetch('/api/time-entries'),
       ]);
 
       const projectsData = await projectsRes.json();
       const tasksData = await tasksRes.json();
       const clientsData = await clientsRes.json();
+      const teamData = await teamRes.json();
+      const timeData = await timeRes.json();
 
-      setStats({
+      setData({
         projects: projectsData.projects?.length || 0,
         clients: clientsData.clients?.length || 0,
         tasks: tasksData.tasks?.length || 0,
-        aiJobs: Math.floor(Math.random() * 500) + 100,
+        teamMembers: teamData.members?.length || 1,
+        recentEntries: timeData.timeEntries?.length || 0,
       });
     } catch (err) {
       console.error('Failed to fetch dashboard data:', err);
+      setData({ projects: 0, clients: 0, tasks: 0, teamMembers: 1, recentEntries: 0 });
     } finally {
       setLoading(false);
     }
@@ -47,9 +61,7 @@ export default function Dashboard() {
     hidden: { opacity: 0 },
     show: {
       opacity: 1,
-      transition: {
-        staggerChildren: 0.1
-      }
+      transition: { staggerChildren: 0.1 }
     }
   };
 
@@ -91,10 +103,18 @@ export default function Dashboard() {
         animate="show"
         className={styles.metricsGrid}
       >
-        <motion.div variants={item}><MetricCard label="Active Projects" value={stats.projects.toString()} trend={8.2} /></motion.div>
-        <motion.div variants={item}><MetricCard label="Total Tasks" value={stats.tasks.toString()} trend={12.4} /></motion.div>
-        <motion.div variants={item}><MetricCard label="Team Size" value="6" /></motion.div>
-        <motion.div variants={item}><MetricCard label="AI Jobs Run" value={stats.aiJobs.toString()} trend={24.5} /></motion.div>
+        <motion.div variants={item}>
+          <MetricCard label="Active Projects" value={data?.projects.toString() || '0'} />
+        </motion.div>
+        <motion.div variants={item}>
+          <MetricCard label="Total Tasks" value={data?.tasks.toString() || '0'} />
+        </motion.div>
+        <motion.div variants={item}>
+          <MetricCard label="Team Size" value={data?.teamMembers.toString() || '1'} />
+        </motion.div>
+        <motion.div variants={item}>
+          <MetricCard label="Time Entries" value={data?.recentEntries.toString() || '0'} />
+        </motion.div>
       </motion.div>
 
       <div className={styles.mainGrid}>
@@ -106,24 +126,48 @@ export default function Dashboard() {
         >
           <Card padding="none">
             <div className={styles.cardHeader}>
-              <h3 className="type-h3">Project Activity</h3>
-              <Badge variant="default">Live Feed</Badge>
+              <h3 className="type-h3">Recent Activity</h3>
+              <Badge variant="default">Live</Badge>
             </div>
             <div className={styles.activityList}>
-              {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className={styles.activityItem}>
+              {data && data.projects > 0 ? (
+                <div className={styles.activityItem}>
                   <div className={styles.activityIcon}>
                     <Clock size={14} />
                   </div>
                   <div className={styles.activityContent}>
                     <p className={styles.activityText}>
-                      <strong>Team member</strong> updated project progress
+                      <strong>You</strong> have {data.projects} active project{data.projects !== 1 ? 's' : ''}
                     </p>
-                    <span className={styles.activityTime}>{i * 2} hours ago</span>
+                    <span className={styles.activityTime}>Now</span>
                   </div>
-                  <ArrowRight size={14} className={styles.activityArrow} />
                 </div>
-              ))}
+              ) : (
+                <div className={styles.activityItem}>
+                  <div className={styles.activityIcon}>
+                    <Sparkles size={14} />
+                  </div>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityText}>
+                      <strong>Welcome!</strong> Create your first project to get started
+                    </p>
+                    <span className={styles.activityTime}>Now</span>
+                  </div>
+                </div>
+              )}
+              {data && data.tasks > 0 && (
+                <div className={styles.activityItem}>
+                  <div className={styles.activityIcon}>
+                    <MessageSquare size={14} />
+                  </div>
+                  <div className={styles.activityContent}>
+                    <p className={styles.activityText}>
+                      <strong>{data.tasks}</strong> task{data.tasks !== 1 ? 's are' : ' is'} assigned to you
+                    </p>
+                    <span className={styles.activityTime}>Now</span>
+                  </div>
+                </div>
+              )}
             </div>
           </Card>
         </motion.div>
@@ -135,29 +179,44 @@ export default function Dashboard() {
           className={styles.workloadColumn}
         >
           <Card>
-            <h3 className="type-h3" style={{ marginBottom: 'var(--space-lg)' }}>Recent AI Insights</h3>
+            <h3 className="type-h3" style={{ marginBottom: 'var(--space-lg)' }}>Quick Start</h3>
             <div className={styles.aiInsights}>
-              <div className={styles.aiCard}>
-                <div className={styles.aiCardHeader}>
-                  <Sparkles size={16} color="var(--color-ai)" />
-                  <span className={styles.aiCardTitle}>Project Health Alert</span>
+              {data && data.projects === 0 && (
+                <div className={styles.aiCard}>
+                  <div className={styles.aiCardHeader}>
+                    <Sparkles size={16} color="var(--color-ai)" />
+                    <span className={styles.aiCardTitle}>Get Started</span>
+                  </div>
+                  <p className={styles.aiCardText}>
+                    Create a project and start tracking your work.
+                  </p>
+                  <Badge variant="ai">Tip</Badge>
                 </div>
-                <p className={styles.aiCardText}>
-                  Your active projects are progressing well. Keep up the momentum!
-                </p>
-                <Badge variant="ai">AI Analysis</Badge>
-              </div>
-
-              <div className={styles.aiCard}>
-                <div className={styles.aiCardHeader}>
-                  <MessageSquare size={16} color="var(--color-ai)" />
-                  <span className={styles.aiCardTitle}>Productivity Tip</span>
+              )}
+              {data && data.tasks === 0 && data.projects > 0 && (
+                <div className={styles.aiCard}>
+                  <div className={styles.aiCardHeader}>
+                    <MessageSquare size={16} color="var(--color-ai)" />
+                    <span className={styles.aiCardTitle}>Next Step</span>
+                  </div>
+                  <p className={styles.aiCardText}>
+                    Add tasks to your projects to start tracking progress.
+                  </p>
+                  <Badge variant="ai">Tip</Badge>
                 </div>
-                <p className={styles.aiCardText}>
-                  Consider reviewing overdue tasks to keep projects on track.
-                </p>
-                <button className={styles.aiCardAction}>View Tasks</button>
-              </div>
+              )}
+              {data && data.tasks > 0 && (
+                <div className={styles.aiCard}>
+                  <div className={styles.aiCardHeader}>
+                    <Sparkles size={16} color="var(--color-ai)" />
+                    <span className={styles.aiCardTitle}>Status Update</span>
+                  </div>
+                  <p className={styles.aiCardText}>
+                    You have {data.tasks} task{data.tasks !== 1 ? 's' : ''} across {data.projects} project{data.projects !== 1 ? 's' : ''}.
+                  </p>
+                  <Badge variant="ai">Summary</Badge>
+                </div>
+              )}
             </div>
           </Card>
         </motion.div>
