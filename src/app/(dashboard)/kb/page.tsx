@@ -125,11 +125,7 @@ export default function KBPage() {
               <span>All Articles</span>
               <span className={styles.categoryCount}>{articles.length}</span>
             </button>
-            {(categories.length > 0 ? categories : [
-              { id: 'getting-started', name: 'Getting Started', count: 5 },
-              { id: 'projects', name: 'Projects', count: 8 },
-              { id: 'tasks', name: 'Tasks', count: 6 },
-            ]).map((cat) => {
+            {(categories.length > 0 ? categories : []).map((cat) => {
               const Icon = getCategoryIcon(cat.name);
               return (
                 <button 
