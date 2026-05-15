@@ -1,0 +1,266 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-md);
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) !important;
+}
+
+.statIcon {
+  width: 44px;
+  height: 44px;
+  background: var(--color-elevated);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-accent);
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: var(--space-xl);
+}
+
+.membersSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.sectionHeader {
+  margin-bottom: var(--space-sm);
+}
+
+.membersList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.memberCard {
+  display: flex;
+  align-items: center;
+  padding: var(--space-md) !important;
+  gap: var(--space-lg);
+}
+
+.memberMain {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  flex: 1;
+}
+
+.avatarWrapper {
+  position: relative;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-2);
+}
+
+.statusDot {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid var(--color-surface);
+}
+
+.memberInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.memberName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.memberRole {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.memberMeta {
+  display: flex;
+  gap: var(--space-xl);
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.metaValue {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.metaLabel {
+  font-size: 10px;
+  color: var(--color-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.memberActions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.activitySection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.activityCard {
+  flex: 1;
+  padding: var(--space-lg) !important;
+}
+
+.activityList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.activityItem {
+  display: flex;
+  gap: var(--space-md);
+  padding-bottom: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.activityItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.activityAvatar {
+  width: 32px;
+  height: 32px;
+  background: var(--color-elevated);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-2);
+  flex-shrink: 0;
+}
+
+.activityContent {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.activityUser {
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.activityAction {
+  color: var(--color-text-3);
+}
+
+.activityTarget {
+  color: var(--color-accent);
+}
+
+.activityTime {
+  font-size: 11px;
+  color: var(--color-text-3);
+  margin-left: auto;
+}
+
+.quickActionsCard {
+  padding: var(--space-lg) !important;
+}
+
+.quickActions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.quickAction {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-2);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.quickAction:hover {
+  background: var(--color-surface);
+  color: var(--color-text-1);
+  border-color: var(--color-accent);
+}

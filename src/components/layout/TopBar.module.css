@@ -1,0 +1,336 @@
+.topBar {
+  height: 56px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--space-xl);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.workspaceSwitcher {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--duration-normal);
+}
+
+.workspaceSwitcher:hover {
+  background: var(--color-elevated);
+}
+
+.avatar {
+  width: 24px;
+  height: 24px;
+  background: var(--color-text-3);
+  color: white;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.workspaceName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-1);
+}
+
+.chevron {
+  color: var(--color-text-3);
+}
+
+.center {
+  flex: 1;
+  max-width: 480px;
+  margin: 0 var(--space-xl);
+}
+
+.searchBar {
+  height: 36px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-md);
+  gap: var(--space-sm);
+}
+
+.searchIcon {
+  color: var(--color-text-3);
+}
+
+.searchInput {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--color-text-1);
+  font-size: 13px;
+}
+
+.searchKbd {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px 6px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  color: var(--color-text-3);
+  font-size: 10px;
+  font-family: var(--font-dm-mono);
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.iconBtn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-2);
+  position: relative;
+  transition: all var(--duration-normal);
+}
+
+.iconBtn:hover {
+  background: var(--color-elevated);
+  color: var(--color-text-1);
+}
+
+.notificationDot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 8px;
+  height: 8px;
+  background: var(--color-accent);
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+}
+
+.divider {
+  width: 1px;
+  height: 24px;
+  background: var(--color-border);
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--duration-normal);
+}
+
+.userMenu:hover {
+  background: var(--color-elevated);
+}
+
+.userAvatar {
+  width: 28px;
+  height: 28px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-2);
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-1);
+}
+
+.dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  min-width: 320px;
+  overflow: hidden;
+  z-index: 100;
+}
+
+.dropdownHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.dropdownTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.markAllRead {
+  background: none;
+  border: none;
+  font-size: 12px;
+  color: var(--color-accent);
+  cursor: pointer;
+}
+
+.markAllRead:hover {
+  text-decoration: underline;
+}
+
+.notifList {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.notifItem {
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background var(--duration-fast);
+}
+
+.notifItem:hover {
+  background: var(--color-elevated);
+}
+
+.notifItem:last-child {
+  border-bottom: none;
+}
+
+.notifItem.unread {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.notifTitle {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-1);
+  margin-bottom: 2px;
+}
+
+.notifMessage {
+  font-size: 12px;
+  color: var(--color-text-3);
+  margin-bottom: 4px;
+}
+
+.notifTime {
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+
+.dropdownFooter {
+  padding: var(--space-md);
+  text-align: center;
+  font-size: 13px;
+  color: var(--color-accent);
+  cursor: pointer;
+  border-top: 1px solid var(--color-border);
+}
+
+.dropdownFooter:hover {
+  background: var(--color-elevated);
+}
+
+.profileHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-md);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.profileAvatar {
+  width: 40px;
+  height: 40px;
+  background: var(--color-elevated);
+  border: 1px solid var(--color-border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-2);
+}
+
+.profileInfo {
+  flex: 1;
+}
+
+.profileName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.profileEmail {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.menuList {
+  padding: var(--space-sm) 0;
+}
+
+.menuItem {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-sm) var(--space-md);
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--color-text-2);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--duration-fast);
+}
+
+.menuItem:hover {
+  background: var(--color-elevated);
+  color: var(--color-text-1);
+}
+
+.menuDivider {
+  height: 1px;
+  background: var(--color-border);
+  margin: var(--space-sm) 0;
+}
+
+.menuItem.logout {
+  color: var(--color-danger);
+}
+
+.menuItem.logout:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger);
+}

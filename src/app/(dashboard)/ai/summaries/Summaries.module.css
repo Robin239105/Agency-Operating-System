@@ -1,0 +1,248 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  padding: var(--space-lg) !important;
+}
+
+.statIcon {
+  width: 44px;
+  height: 44px;
+  background: var(--color-elevated);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.statContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.statLabel {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: var(--space-xl);
+  height: calc(100vh - 320px);
+}
+
+.listSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  overflow-y: auto;
+}
+
+.sectionHeader {
+  margin-bottom: var(--space-sm);
+}
+
+.summariesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.summaryCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-md) !important;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.summaryCard.selected {
+  border-color: var(--color-ai);
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.summaryMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.summaryHeader {
+  display: flex;
+  align-items: center;
+}
+
+.summaryTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.summaryMeeting {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.summaryMeta {
+  display: flex;
+  gap: var(--space-md);
+  font-size: 11px;
+  color: var(--color-text-3);
+}
+
+.summaryMeta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chevron {
+  color: var(--color-text-3);
+}
+
+.detailSection {
+  overflow-y: auto;
+}
+
+.detailCard {
+  padding: var(--space-xl) !important;
+}
+
+.detailHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-lg);
+}
+
+.detailTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.detailMeeting {
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.detailActions {
+  display: flex;
+  gap: var(--space-xs);
+}
+
+.detailMeta {
+  display: flex;
+  gap: var(--space-xl);
+  padding: var(--space-md) 0;
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: var(--space-lg);
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.summaryContent {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.contentTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-1);
+  margin-bottom: var(--space-sm);
+}
+
+.contentText {
+  font-size: 14px;
+  color: var(--color-text-2);
+  line-height: 1.6;
+}
+
+.pointsList,
+.actionList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding-left: var(--space-md);
+}
+
+.pointsList li,
+.actionList li {
+  font-size: 13px;
+  color: var(--color-text-2);
+  position: relative;
+}
+
+.pointsList li::before {
+  content: '•';
+  position: absolute;
+  left: -12px;
+  color: var(--color-ai);
+}
+
+.actionList li {
+  color: var(--color-text-1);
+}
+
+.aiInsights {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  background: rgba(139, 92, 246, 0.05);
+  border: 1px solid rgba(139, 92, 246, 0.1);
+  border-radius: var(--radius-md);
+  padding: var(--space-md);
+}
+
+.insightItem {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.insightIcon {
+  color: var(--color-ai);
+}

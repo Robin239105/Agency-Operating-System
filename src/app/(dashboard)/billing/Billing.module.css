@@ -1,0 +1,297 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xl);
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.titleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.usageSection {
+  width: 100%;
+}
+
+.usageCard {
+  padding: var(--space-xl) !important;
+}
+
+.usageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-xl);
+}
+
+.usageGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-xl);
+}
+
+.usageItem {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.usageLabel {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.usageValue {
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.usageBar {
+  height: 6px;
+  background: var(--color-elevated);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.usageProgress {
+  height: 100%;
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+  transition: width var(--duration-normal);
+}
+
+.planSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+
+.planHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.billingToggle {
+  display: flex;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 2px;
+}
+
+.billingToggle button {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-2);
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+}
+
+.billingToggle button.activeToggle {
+  background: var(--color-elevated);
+  color: var(--color-text-1);
+}
+
+.saveBadge {
+  font-size: 10px;
+  background: var(--color-success);
+  color: white;
+  padding: 2px 6px;
+  border-radius: var(--radius-full);
+}
+
+.plansGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-md);
+}
+
+.planCard {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+  position: relative;
+}
+
+.planCard.popularPlan {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 1px var(--color-accent);
+}
+
+.planCard.currentPlan {
+  background: rgba(139, 92, 246, 0.05);
+}
+
+.popularBadge {
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--color-accent);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+
+.planInfo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.planName {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.planDesc {
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.planPricing {
+  display: flex;
+  align-items: baseline;
+  gap: 2px;
+}
+
+.planPrice {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--color-text-1);
+}
+
+.planPeriod {
+  font-size: 14px;
+  color: var(--color-text-3);
+}
+
+.planFeatures {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md) 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.planFeature {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-size: 13px;
+  color: var(--color-text-2);
+}
+
+.checkIcon {
+  color: var(--color-success);
+  flex-shrink: 0;
+}
+
+.planAction {
+  margin-top: auto;
+  padding-top: var(--space-md);
+}
+
+.planAction button {
+  width: 100%;
+}
+
+.bottomSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-md);
+}
+
+.paymentCard,
+.billingInfoCard {
+  padding: var(--space-lg) !important;
+}
+
+.paymentHeader,
+.billingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-lg);
+}
+
+.paymentMethod {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+}
+
+.cardIcon {
+  width: 48px;
+  height: 32px;
+  background: var(--color-elevated);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-2);
+}
+
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.cardNumber {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-text-1);
+}
+
+.cardExpiry {
+  font-size: 12px;
+  color: var(--color-text-3);
+}
+
+.billingDetails {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+
+.billingRow {
+  display: flex;
+  justify-content: space-between;
+}
+
+.billingLabel {
+  font-size: 13px;
+  color: var(--color-text-3);
+}
+
+.billingValue {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-text-1);
+}

@@ -1,0 +1,20 @@
+.card {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: all var(--duration-normal) var(--ease-snappy);
+  overflow: hidden;
+  position: relative;
+}
+
+.bg-surface { background: var(--color-surface); }
+.bg-elevated { background: var(--color-elevated); }
+.bg-canvas { background: var(--color-canvas); }
+
+.p-none { padding: 0; }
+.p-sm { padding: var(--space-sm); }
+.p-md { padding: var(--space-lg); } /* 24px per spec */
+.p-lg { padding: var(--space-xl); }
+
+.hoverable {
+  cursor: pointer;
+}
