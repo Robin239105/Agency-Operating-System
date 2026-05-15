@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -19,7 +19,9 @@ import {
   Layout,
   Zap,
   Shield,
-  Database
+  Database,
+  Sparkles,
+  Loader2
 } from 'lucide-react';
 import styles from './KB.module.css';
 
@@ -33,26 +35,37 @@ interface Article {
   excerpt: string;
 }
 
-const categories = [
-  { id: 'getting-started', name: 'Getting Started', icon: Zap, color: 'var(--color-accent)', count: 8 },
-  { id: 'design-system', name: 'Design System', icon: Layout, color: 'var(--color-ai)', count: 12 },
-  { id: 'development', name: 'Development', icon: Code, color: 'var(--color-warning)', count: 15 },
-  { id: 'security', name: 'Security', icon: Shield, color: 'var(--color-danger)', count: 6 },
-  { id: 'integrations', name: 'Integrations', icon: Database, color: 'var(--color-success)', count: 9 },
-];
-
-const articles: Article[] = [
-  { id: '1', title: 'Quick Start Guide: Setting Up Your First Project', category: 'Getting Started', readTime: '5 min', views: 1240, starred: true, excerpt: 'Learn how to create and configure your first project in just a few minutes.' },
-  { id: '2', title: 'Understanding Color Tokens in the Design System', category: 'Design System', readTime: '8 min', views: 856, starred: false, excerpt: 'Deep dive into how color tokens are structured and how to use them.' },
-  { id: '3', title: 'API Authentication: OAuth 2.0 Implementation', category: 'Development', readTime: '12 min', views: 634, starred: true, excerpt: 'Complete guide to implementing OAuth 2.0 authentication in your apps.' },
-  { id: '4', title: 'Best Practices for Secure API Keys', category: 'Security', readTime: '6 min', views: 512, starred: false, excerpt: 'Essential security practices for managing API keys in production.' },
-  { id: '5', title: 'Integrating with Slack: Webhooks & Events', category: 'Integrations', readTime: '10 min', views: 428, starred: false, excerpt: 'Step-by-step guide to setting up Slack integrations with your projects.' },
-  { id: '6', title: 'Typography Scale & Font Usage', category: 'Design System', readTime: '7 min', views: 789, starred: true, excerpt: 'How to properly use the typography scale and font tokens.' },
-];
+interface Category {
+  id: string;
+  name: string;
+  count: number;
+}
 
 export default function KBPage() {
+  const [articles, setArticles] = useState<Article[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    fetchKB();
+  }, []);
+
+  const fetchKB = async () => {
+    try {
+      const res = await fetch('/api/knowledgebase');
+      const data = await res.json();
+      if (data.articles) {
+        setArticles(data.articles);
+        setCategories(data.categories || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch KB:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const filteredArticles = articles.filter(article => {
     const matchesCategory = selectedCategory === 'all' || 
@@ -60,6 +73,21 @@ export default function KBPage() {
     const matchesSearch = article.title.toLowerCase().includes(search.toLowerCase());
     return matchesCategory && matchesSearch;
   });
+
+  const getCategoryIcon = (name: string) => {
+    const icons: any = { 'Getting Started': Zap, 'Projects': Layout, 'Tasks': Code, 'Time': Clock, 'AI': Sparkles };
+    return icons[name] || BookOpen;
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -97,17 +125,24 @@ export default function KBPage() {
               <span>All Articles</span>
               <span className={styles.categoryCount}>{articles.length}</span>
             </button>
-            {categories.map((cat) => (
-              <button 
-                key={cat.id}
-                className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.active : ''}`}
-                onClick={() => setSelectedCategory(cat.id)}
-              >
-                <cat.icon size={16} style={{ color: cat.color }} />
-                <span>{cat.name}</span>
-                <span className={styles.categoryCount}>{cat.count}</span>
-              </button>
-            ))}
+            {(categories.length > 0 ? categories : [
+              { id: 'getting-started', name: 'Getting Started', count: 5 },
+              { id: 'projects', name: 'Projects', count: 8 },
+              { id: 'tasks', name: 'Tasks', count: 6 },
+            ]).map((cat) => {
+              const Icon = getCategoryIcon(cat.name);
+              return (
+                <button 
+                  key={cat.id}
+                  className={`${styles.categoryBtn} ${selectedCategory === cat.id ? styles.active : ''}`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                >
+                  <Icon size={16} />
+                  <span>{cat.name}</span>
+                  <span className={styles.categoryCount}>{cat.count}</span>
+                </button>
+              );
+            })}
           </div>
 
           <Card className={styles.popularCard}>
@@ -116,7 +151,7 @@ export default function KBPage() {
               Popular Articles
             </h3>
             <div className={styles.popularList}>
-              {articles.filter(a => a.starred).map(article => (
+              {articles.filter(a => a.starred).slice(0, 3).map(article => (
                 <div key={article.id} className={styles.popularItem}>
                   <FileText size={12} />
                   <span>{article.title}</span>
@@ -129,13 +164,13 @@ export default function KBPage() {
         <div className={styles.articlesSection}>
           <div className={styles.sectionHeader}>
             <h2 className="type-h3">
-              {selectedCategory === 'all' ? 'All Articles' : categories.find(c => c.id === selectedCategory)?.name}
+              {selectedCategory === 'all' ? 'All Articles' : categories.find(c => c.id === selectedCategory)?.name || 'Articles'}
             </h2>
             <span className={styles.articleCount}>{filteredArticles.length} articles</span>
           </div>
 
           <div className={styles.articlesList}>
-            {filteredArticles.map((article, idx) => (
+            {(filteredArticles.length > 0 ? filteredArticles : articles.slice(0, 3)).map((article, idx) => (
               <motion.div
                 key={article.id}
                 initial={{ opacity: 0, y: 10 }}

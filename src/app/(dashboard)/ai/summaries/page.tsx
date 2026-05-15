@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
@@ -16,7 +16,8 @@ import {
   ChevronRight,
   Brain,
   Calendar,
-  Zap
+  Zap,
+  Loader2
 } from 'lucide-react';
 import styles from './Summaries.module.css';
 
@@ -31,16 +32,33 @@ interface Summary {
   status: 'ready' | 'processing';
 }
 
-const mockSummaries: Summary[] = [
-  { id: '1', title: 'Project Kickoff Discussion', meeting: 'Nexus Brand Kickoff', date: 'May 14, 2024', duration: '45 min', participants: 5, keyPoints: 8, status: 'ready' },
-  { id: '2', title: 'Sprint Planning Session', meeting: 'Sprint 23 Planning', date: 'May 13, 2024', duration: '60 min', participants: 8, keyPoints: 12, status: 'ready' },
-  { id: '3', title: 'Client Feedback Review', meeting: 'Vortex Design Review', date: 'May 12, 2024', duration: '30 min', participants: 3, keyPoints: 6, status: 'ready' },
-  { id: '4', title: 'Weekly Team Standup', meeting: 'Team Standup', date: 'May 11, 2024', duration: '15 min', participants: 6, keyPoints: 4, status: 'ready' },
-  { id: '5', title: 'Technical Architecture Review', meeting: 'Tech Sync', date: 'May 10, 2024', duration: '90 min', participants: 4, keyPoints: 15, status: 'processing' },
-];
-
 export default function SummariesPage() {
-  const [selectedSummary, setSelectedSummary] = useState<Summary | null>(mockSummaries[0]);
+  const [summaries, setSummaries] = useState<Summary[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedSummary, setSelectedSummary] = useState<Summary | null>(null);
+
+  useEffect(() => {
+    // For now, use mock data since we don't have an API for summaries yet
+    setSummaries([
+      { id: '1', title: 'Project Kickoff Discussion', meeting: 'Nexus Brand Kickoff', date: 'May 14, 2024', duration: '45 min', participants: 5, keyPoints: 8, status: 'ready' },
+      { id: '2', title: 'Sprint Planning Session', meeting: 'Sprint 23 Planning', date: 'May 13, 2024', duration: '60 min', participants: 8, keyPoints: 12, status: 'ready' },
+      { id: '3', title: 'Client Feedback Review', meeting: 'Vortex Design Review', date: 'May 12, 2024', duration: '30 min', participants: 3, keyPoints: 6, status: 'ready' },
+    ]);
+    setSelectedSummary({
+      id: '1', title: 'Project Kickoff Discussion', meeting: 'Nexus Brand Kickoff', date: 'May 14, 2024', duration: '45 min', participants: 5, keyPoints: 8, status: 'ready'
+    });
+    setLoading(false);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className={styles.container}>
+        <div style={{ display: 'flex', justifyContent: 'center', padding: '100px' }}>
+          <Loader2 size={32} className={styles.spin} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.container}>
@@ -62,7 +80,7 @@ export default function SummariesPage() {
             <Brain size={20} />
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statValue}>47</span>
+            <span className={styles.statValue}>{summaries.length}</span>
             <span className={styles.statLabel}>Total Summaries</span>
           </div>
         </Card>
@@ -71,7 +89,7 @@ export default function SummariesPage() {
             <Sparkles size={20} />
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statValue}>156</span>
+            <span className={styles.statValue}>{summaries.reduce((acc, s) => acc + s.keyPoints, 0)}</span>
             <span className={styles.statLabel}>Key Insights</span>
           </div>
         </Card>
@@ -80,7 +98,7 @@ export default function SummariesPage() {
             <Clock size={20} />
           </div>
           <div className={styles.statContent}>
-            <span className={styles.statValue}>18h</span>
+            <span className={styles.statValue}>{Math.floor(summaries.reduce((acc, s) => acc + parseInt(s.duration), 0) / 60)}h</span>
             <span className={styles.statLabel}>Time Saved</span>
           </div>
         </Card>
@@ -92,7 +110,7 @@ export default function SummariesPage() {
             <h2 className="type-h3">Recent Summaries</h2>
           </div>
           <div className={styles.summariesList}>
-            {mockSummaries.map((summary, idx) => (
+            {summaries.map((summary, idx) => (
               <motion.div
                 key={summary.id}
                 initial={{ opacity: 0, y: 10 }}
@@ -159,25 +177,23 @@ export default function SummariesPage() {
               <div className={styles.summaryContent}>
                 <h3 className={styles.contentTitle}>Meeting Overview</h3>
                 <p className={styles.contentText}>
-                  This {selectedSummary.duration.toLowerCase()} meeting covered the main project objectives and deliverables. 
-                  The team discussed current progress, identified blockers, and defined next steps for the upcoming sprint.
+                  This meeting covered the main project objectives and deliverables. 
+                  The team discussed current progress, identified blockers, and defined next steps.
                 </p>
 
                 <h3 className={styles.contentTitle}>Key Discussion Points</h3>
                 <ul className={styles.pointsList}>
                   <li>Project timeline confirmed with client deliverables due end of month</li>
-                  <li>Resource allocation reviewed - additional designer assigned to team</li>
-                  <li>Technical requirements finalized for Phase 2 implementation</li>
-                  <li>QA testing schedule established with 2-week buffer</li>
-                  <li>Client presentation deck scheduled for Friday review</li>
+                  <li>Resource allocation reviewed</li>
+                  <li>Technical requirements finalized</li>
+                  <li>QA testing schedule established</li>
                 </ul>
 
                 <h3 className={styles.contentTitle}>Action Items</h3>
                 <ul className={styles.actionList}>
-                  <li><strong>Alex:</strong> Send final mockups by Wednesday</li>
-                  <li><strong>Sarah:</strong> Update project timeline in Notion</li>
-                  <li><strong>Chen:</strong> Prepare client presentation slides</li>
-                  <li><strong>Jordan:</strong> Schedule developer handoff meeting</li>
+                  <li><strong>Team Member 1:</strong> Complete task by Wednesday</li>
+                  <li><strong>Team Member 2:</strong> Update documentation</li>
+                  <li><strong>Team Member 3:</strong> Schedule follow-up meeting</li>
                 </ul>
 
                 <h3 className={styles.contentTitle}>AI-Generated Insights</h3>
@@ -188,11 +204,7 @@ export default function SummariesPage() {
                   </div>
                   <div className={styles.insightItem}>
                     <Sparkles size={14} className={styles.insightIcon} />
-                    <span>Risk identified: Tight timeline for Phase 2</span>
-                  </div>
-                  <div className={styles.insightItem}>
-                    <Sparkles size={14} className={styles.insightIcon} />
-                    <span>Recommendation: Consider scope adjustment for QA buffer</span>
+                    <span>Risk identified: Timeline may be tight</span>
                   </div>
                 </div>
               </div>
