@@ -1,8 +1,7 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
@@ -14,22 +13,45 @@ import {
   Users, 
   Database, 
   Key,
-  Check
+  Check,
+  Loader2,
+  CheckCircle2
 } from 'lucide-react';
 import styles from './Settings.module.css';
 
 export default function SettingsPage() {
   const { data: session } = useSession();
-  const userName = session?.user?.name || 'User';
-  const userEmail = session?.user?.email || '';
-  const userInitial = userName.charAt(0).toUpperCase();
+  const [name, setName] = useState(session?.user?.name || '');
+  const [email, setEmail] = useState(session?.user?.email || '');
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  const handleSave = async () => {
+    setSaving(true);
+    setSaved(false);
+    try {
+      const res = await fetch('/api/settings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email }),
+      });
+      if (res.ok) {
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
+      }
+    } catch (err) {
+      console.error('Failed to save:', err);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <h1 className="type-h2">System Settings</h1>
         <p className="type-body" style={{ color: 'var(--color-text-3)' }}>
-          Manage your account, workspace, and system configurations.
+          Manage your account and workspace.
         </p>
       </header>
 
@@ -50,28 +72,24 @@ export default function SettingsPage() {
             </div>
             
             <div className={styles.fieldGrid}>
-              <Input label="Full Name" defaultValue={userName} />
-              <Input label="Email" defaultValue={userEmail} type="email" />
+              <Input 
+                label="Full Name" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)}
+              />
+              <Input 
+                label="Email" 
+                value={email} 
+                type="email" 
+                onChange={(e) => setEmail(e.target.value)}
+              />
             </div>
             
             <div className={styles.panelActions}>
-              <Button variant="primary">Save Changes</Button>
-            </div>
-          </Card>
-
-          <Card className={styles.panelCard}>
-            <div className={styles.panelHeader}>
-              <h3 className="type-h3">Workspace</h3>
-              <Badge variant="active">Active</Badge>
-            </div>
-            
-            <div className={styles.fieldGrid}>
-              <Input label="Agency Name" defaultValue="My Agency" />
-              <Input label="Workspace Slug" defaultValue="my-agency" prefix="aos.app/" />
-            </div>
-            
-            <div className={styles.panelActions}>
-              <Button variant="primary">Save Changes</Button>
+              {saved && <span style={{ color: 'var(--color-success)', fontSize: 13, display: 'flex', alignItems: 'center', gap: 4 }}><CheckCircle2 size={14} /> Saved</span>}
+              <Button variant="primary" onClick={handleSave} disabled={saving}>
+                {saving ? <Loader2 size={16} /> : 'Save Changes'}
+              </Button>
             </div>
           </Card>
 
@@ -80,36 +98,10 @@ export default function SettingsPage() {
               <h3 className="type-h3">Current Plan</h3>
               <Badge variant="active">Active</Badge>
             </div>
-            
             <div className={styles.planInfo}>
               <div className={styles.planDetails}>
-                <h4 className={styles.planName}>Pro</h4>
-                <p className={styles.planPrice}>$79<span className={styles.planPeriod}>/month</span></p>
+                <h4 className={styles.planName}>Free</h4>
               </div>
-              <ul className={styles.planFeatures}>
-                <li><Check size={14} color="var(--color-success)" /> Unlimited Projects</li>
-                <li><Check size={14} color="var(--color-success)" /> 20 Team Members</li>
-                <li><Check size={14} color="var(--color-success)" /> Priority Support</li>
-              </ul>
-            </div>
-            
-            <div className={styles.panelActions}>
-              <Button variant="secondary">Manage Subscription</Button>
-            </div>
-          </Card>
-
-          <Card className={styles.panelCard}>
-            <div className={styles.panelHeader}>
-              <h3 className="type-h3">API Keys</h3>
-              <p className="type-small" style={{ color: 'var(--color-text-3)' }}>Connect AOS to your workflow.</p>
-            </div>
-            
-            <div className={styles.apiKey}>
-              <div className={styles.keyInfo}>
-                <Key size={16} color="var(--color-text-3)" />
-                <code className="type-mono">sk_live_••••••••••••••••</code>
-              </div>
-              <Button variant="ghost" size="sm">Reveal</Button>
             </div>
           </Card>
         </div>
