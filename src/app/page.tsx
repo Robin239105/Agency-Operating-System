@@ -1,6 +1,5 @@
 'use client';
 
-import { motion } from 'framer-motion';
 import Link from 'next/link';
 
 export default function Home() {
@@ -12,77 +11,55 @@ export default function Home() {
       alignItems: 'center', 
       justifyContent: 'center',
       background: 'radial-gradient(circle at center, #12161F 0%, #0B0E14 100%)',
-      padding: 'var(--space-xl)'
+      padding: '32px',
+      color: '#F1F5F9',
+      fontFamily: 'system-ui, sans-serif'
     }}>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-        style={{ textAlign: 'center' }}
-      >
-        <h1 className="type-hero" style={{ marginBottom: 'var(--space-md)' }}>
+      <div style={{ textAlign: 'center' }}>
+        <h1 style={{ 
+          fontSize: '60px', 
+          fontWeight: '700',
+          marginBottom: '16px',
+          letterSpacing: '-0.04em'
+        }}>
           AOS
         </h1>
-        <p className="type-body" style={{ 
-          color: 'var(--color-text-2)', 
+        <p style={{ 
+          color: '#94A3B8', 
           maxWidth: '500px', 
-          margin: '0 auto var(--space-xl)',
+          margin: '0 auto 32px',
           fontSize: '18px'
         }}>
-          The AI-Powered Agency Operating System. 
-          Precision-engineered for the modern digital landscape.
+          The AI-Powered Agency Operating System.
         </p>
 
-        <div style={{ display: 'flex', gap: 'var(--space-md)', justifyContent: 'center' }}>
+        <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
           <Link href="/login">
-            <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              style={{
-                background: 'var(--color-accent)',
-                color: 'white',
-                padding: 'var(--space-md) var(--space-xl)',
-                borderRadius: 'var(--radius-md)',
-                fontWeight: 600,
-                boxShadow: 'var(--shadow-mid)'
-              }}
-            >
+            <button style={{
+              background: '#3D7BFF',
+              color: 'white',
+              padding: '16px 32px',
+              borderRadius: '10px',
+              fontWeight: '600',
+              border: 'none',
+              cursor: 'pointer'
+            }}>
               Enter System
-            </motion.button>
+            </button>
           </Link>
-          
-          <motion.button
-            whileHover={{ scale: 1.05, background: 'rgba(255,255,255,0.05)' }}
-            whileTap={{ scale: 0.95 }}
-            style={{
-              border: '1px solid var(--color-border)',
-              color: 'var(--color-text-1)',
-              padding: 'var(--space-md) var(--space-xl)',
-              borderRadius: 'var(--radius-md)',
-              fontWeight: 500
-            }}
-          >
-            Documentation
-          </motion.button>
         </div>
-      </motion.div>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.5 }}
-        transition={{ delay: 1, duration: 2 }}
-        style={{
-          position: 'absolute',
-          bottom: 'var(--space-xl)',
-          fontSize: '11px',
-          fontFamily: 'var(--font-dm-mono)',
-          textTransform: 'uppercase',
-          letterSpacing: '0.2em',
-          color: 'var(--color-text-3)'
-        }}
-      >
-        Built for Performance • Powered by AI
-      </motion.div>
+      <div style={{
+        position: 'absolute',
+        bottom: '32px',
+        fontSize: '11px',
+        textTransform: 'uppercase',
+        letterSpacing: '0.2em',
+        color: '#475569'
+      }}>
+        Built for Performance
+      </div>
     </main>
   );
 }
