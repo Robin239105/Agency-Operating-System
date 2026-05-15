@@ -187,9 +187,11 @@ export default function InvoicesPage() {
       </div>
 
       <div className={styles.invoicesList}>
-        {(filteredInvoices.length > 0 ? filteredInvoices : [
-          { id: '1', number: 'INV-001', client: 'Sample Client', amount: '$1,000', date: '2024-05-01', dueDate: '2024-05-15', status: 'pending', items: 2 }
-        ]).map((invoice, idx) => (
+        {filteredInvoices.length === 0 ? (
+          <Card style={{ padding: 'var(--space-2xl)', textAlign: 'center' }}>
+            <p style={{ color: 'var(--color-text-3)' }}>No invoices yet</p>
+          </Card>
+        ) : filteredInvoices.map((invoice, idx) => (
           <motion.div
             key={invoice.id}
             initial={{ opacity: 0, y: 10 }}

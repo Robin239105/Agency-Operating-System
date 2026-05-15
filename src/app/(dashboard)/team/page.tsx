@@ -68,10 +68,6 @@ export default function TeamPage() {
     );
   }
 
-  const displayMembers = members.length > 0 ? members : [
-    { id: '1', name: 'You', role: 'Admin', avatar: 'Y', status: 'online', tasks: 5, hoursThisWeek: '40h' }
-  ];
-
   return (
     <div className={styles.container}>
       <header className={styles.header}>
@@ -90,21 +86,21 @@ export default function TeamPage() {
         <Card className={styles.statCard}>
           <div className={styles.statIcon}><Users size={20} /></div>
           <div className={styles.statContent}>
-            <span className={styles.statValue}>{displayMembers.length}</span>
+            <span className={styles.statValue}>{members.length}</span>
             <span className={styles.statLabel}>Members</span>
           </div>
         </Card>
         <Card className={styles.statCard}>
           <div className={styles.statIcon}><Activity size={20} /></div>
           <div className={styles.statContent}>
-            <span className={styles.statValue}>{displayMembers.filter(m => m.status === 'online').length}</span>
+            <span className={styles.statValue}>{members.filter(m => m.status === 'online').length}</span>
             <span className={styles.statLabel}>Online</span>
           </div>
         </Card>
       </div>
 
       <div className={styles.membersList}>
-        {displayMembers.map((member) => (
+        {members.map((member) => (
           <Card key={member.id} className={styles.memberCard}>
             <div className={styles.avatar}>{member.avatar}</div>
             <div>

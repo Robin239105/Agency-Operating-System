@@ -213,16 +213,18 @@ export default function ProposalPage() {
           )}
         </div>
 
-        <div className={styles.historySection}>
-          <h2 className="type-h3">Recent</h2>
-          {(proposals.length > 0 ? proposals : [{ id: '1', client: 'Sample', title: 'Demo', status: 'draft', created: '2024-05-15', value: '$0' }]).map((proposal) => (
-            <Card key={proposal.id} className={styles.historyCard}>
-              <Badge variant={proposal.status === 'ready' ? 'success' : 'neutral'}>{proposal.status}</Badge>
-              <h3>{proposal.title}</h3>
-              <p>{proposal.client}</p>
-            </Card>
-          ))}
-        </div>
+        {proposals.length > 0 && (
+          <div className={styles.historySection}>
+            <h2 className="type-h3">Recent</h2>
+            {proposals.map((proposal) => (
+              <Card key={proposal.id} className={styles.historyCard}>
+                <Badge variant={proposal.status === 'ready' ? 'success' : 'neutral'}>{proposal.status}</Badge>
+                <h3>{proposal.title}</h3>
+                <p>{proposal.client}</p>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
