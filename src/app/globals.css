@@ -1,4 +1,9 @@
 :root {
+  /* FONTS */
+  --font-outfit: 'Outfit', system-ui, sans-serif;
+  --font-bricolage: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-dm-mono: 'DM Mono', monospace;
+
   /* COLOR TOKENS */
   --color-canvas: #0B0E14;
   --color-surface: #12161F;
